@@ -1,10 +1,16 @@
 import { getArticles } from '../../../utils/contentful';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import  SearchParams  from 'next';
 
-export default async function Library({ searchParams }) {
-  const searchQuery = searchParams.query || '';
+
+interface LibraryPageProps {
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default async function Library({ searchParams }: LibraryPageProps) {
+  const searchQuery = Array.isArray(searchParams.query)
+    ? searchParams.query[0] || '' 
+    : searchParams.query || '';
   const articles = await getArticles(searchQuery);
 
   return (

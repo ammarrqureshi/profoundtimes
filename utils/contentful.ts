@@ -1,7 +1,8 @@
 import { createClient } from 'contentful';
 import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer';
+import { Asset, Entry } from 'contentful'; 
 
-// Define the Article interface
+
 interface Article {
   id: string;
   title: string;
@@ -9,13 +10,8 @@ interface Article {
   content: string;
   author: string;
   publishDate: string | null;
-  featuredImage: {
-    fields: {
-      file: {
-        url: string;
-      };
-    };
-  } | null;
+  featuredImage: Asset | null;
+  topic: string[]; // Assuming topic is an array of strings
 }
 
 export const contentfulClient = createClient({
@@ -23,26 +19,34 @@ export const contentfulClient = createClient({
   accessToken: process.env.CONTENTFUL_ACCESS_TOKEN,
 });
 
-export async function getArticles(query = ''): Promise<Article[]> {
+export async function getArticles(topic?: string): Promise<Article[]> {
   try {
     const response = await contentfulClient.getEntries({
       content_type: 'article',
-      query: query || undefined,
+      'fields.topic': topic || undefined, // Filter by topic if provided
       order: '-fields.publishDate',
     });
 
-    return response.items.map((item) => {
-      const fields = item.fields;
+    return response.items.map((item: Entry<any>) => {
+      const fields = item.fields as {
+        title?: string;
+        slug?: string;
+        content?: any;
+        author?: string;
+        publishDate?: string;
+        featuredImage?: Asset;
+        topic?: string[];
+      };
+
       return {
         id: item.sys.id,
         title: fields.title || 'Untitled',
         slug: fields.slug || '',
-        content: fields.content?.nodeType
-          ? documentToPlainTextString(fields.content)
-          : fields.content || 'No content available',
+        content: fields.content ? documentToPlainTextString(fields.content) : 'No content available',
         author: fields.author || 'Anonymous',
         publishDate: fields.publishDate || null,
         featuredImage: fields.featuredImage || null,
+        topic: fields.topic || [],
       };
     });
   } catch (error) {
@@ -58,15 +62,25 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
       'fields.slug': slug,
     });
 
-    const item = response.items[0];
+    const item = response.items[0] as Entry<any> | undefined;
     if (!item) return null;
 
-    const fields = item.fields;
+    const fields = item.fields as {
+      title?: string;
+      slug?: string;
+      content?: any; 
+      author?: string;
+      publishDate?: string;
+      featuredImage?: Asset;
+    };
+
     return {
       id: item.sys.id,
       title: fields.title || 'Untitled',
       slug: fields.slug || '',
-      content: fields.content || 'No content available',
+      content: fields.content
+        ? documentToPlainTextString(fields.content)
+        : 'No content available',
       author: fields.author || 'Anonymous',
       publishDate: fields.publishDate || null,
       featuredImage: fields.featuredImage || null,

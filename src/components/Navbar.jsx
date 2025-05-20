@@ -6,7 +6,7 @@ function Navbar() {
     <nav className="flex items-center justify-center
      border border-text 
     rounded-lg p-6   space-x-4">
-       <div className="flex text-2xl space-x-7">
+       <div className="flex space-x-7">
         <Link href="/" className=" hover:underline">
           Home
         </Link>

@@ -16,7 +16,7 @@ export default async function ArticlePage({ params }) {
   }
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 border border-gray-300 rounded-2xl">
       <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
       <p className="text-gray-600 mb-4">
         By {article.author || 'Anonymous'}
