@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
-
+import { Input } from '../../src/components/ui/input';
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Profoundtimes",
@@ -18,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body
       style={{
-          backgroundImage: "url('/profoundtimes-bg.jpg')", // Path to image in public folder
+          backgroundImage: "url('/')", 
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -27,6 +28,14 @@ export default function RootLayout({
       >
         <Navbar />
         {children}
+        <div className="mt-6 flex justify-center gap-2">
+        <Input
+          type="email"
+          placeholder="Enter Email"
+          className="w-full max-w-md  bg-white border-gray-300"
+        />
+        <Button type="submit">Submit</Button>
+      </div>
       </body>
     </html>
   );
