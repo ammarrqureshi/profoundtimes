@@ -1,7 +1,6 @@
-import { getArticles } from '../../../utils/contentful';
+import { getArticles } from '../../utils/contentful';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
-import Image from "next/image";
 
 import {
   Card,
@@ -11,6 +10,7 @@ import {
   CardHeader,
 } from '../../components/ui/card';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface LibraryPageProps {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -40,13 +40,19 @@ export default async function Library({ searchParams }: LibraryPageProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {articles.length > 0 ? (
           articles.map((article) => (
-            <Link key={article.id} href={`/articles/${article.slug}`}>
+            <Link 
+            key={article.id}
+             href={`/library/${article.slug}`}
+             className="block"
+             >
               <Card className="border border-gray-300 rounded-lg p-4 hover:bg-gray-50 transition flex flex-row gap-3 items-start">
                 {article.featuredImage && article.featuredImage.fields?.file?.url && (
                   <div className="w-25 h-25 flex-shrink-0">
-                    <img
-                      src={article.featuredImage.fields.file.url}
+                    <Image
+                      src={`https:${article.featuredImage.fields.file.url}`}
                       alt={article.title}
+                       width={120}
+                    height={120}
                       className="w-full h-full object-cover rounded-md"
                     />
                   </div>
@@ -70,7 +76,10 @@ export default async function Library({ searchParams }: LibraryPageProps) {
                           })}
                         </p>
                       )}
-                      <p className="mt-1 line-clamp-2 text-xs">{article.content}</p>
+                      <p className="mt-1 line-clamp-3 text-xs">{article.contentPreview}</p>
+
+
+
                     </CardContent>
                   </CardHeader>
                 </div>

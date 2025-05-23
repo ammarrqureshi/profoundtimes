@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { getArticles } from "../../utils/contentful"; 
+import { getArticles } from "../utils/contentful"; 
 import {
   Card,
   CardContent,
@@ -27,7 +27,7 @@ export default async function Home() {
                     alt={article.title}
                     width={120}
                     height={120}
-                    className="object-cover ml-1  flex-shrink-0"
+                    className="h-35 object-cover ml-1  flex-shrink-0"
                   />
                 )}
               <div className="flex-1">
@@ -38,7 +38,8 @@ export default async function Home() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <p className="text-gray-600 line-clamp-3">{article.content}</p>
+                 <p className="text-gray-600 text-xs line-clamp-3">{article.contentPreview}</p>
+
                 </CardContent>
               </div>
             </Card>
