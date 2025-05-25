@@ -28,11 +28,11 @@ export default function RootLayout({
       >
         <Navbar />
         {children}
-        <div className="mt-6 flex justify-center gap-2">
+        <div className="mt-6 flex justify-center gap-1">
         <Input
           type="email"
           placeholder="Enter Email"
-          className="w-full max-w-md  bg-white border-gray-300"
+          className=" max-w-md  bg-white border-gray-300"
         />
         <Button type="submit">Submit</Button>
       </div>

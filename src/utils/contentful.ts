@@ -22,7 +22,7 @@ export async function getArticles(topic?: string): Promise<Article[]> {
   try {
     const response = await contentfulClient.getEntries({
       content_type: 'article',
-      'fields.topic': topic || undefined, // Filter by topic if provided
+      'fields.topic': topic || undefined, 
     });
   
 
@@ -43,7 +43,7 @@ return {
   id: item.sys.id,
   title: fields.title || 'Untitled',
   slug: fields.slug || '',
-  contentRaw: fields.content || null, // for full rendering
+  contentRaw: fields.content || null, 
   contentPreview: fields.content
     ? documentToPlainTextString(fields.content).slice(0, 300)
     : 'No content available',
@@ -65,22 +65,19 @@ export async function getCategories(): Promise<string[]> {
     const response = await contentfulClient.getEntries({
       content_type: 'article',
       select: 'fields.topic',
+      limit: 1000 
     });
 
     const allTopics = response.items.flatMap((item: Entry<any>) => {
       const topic = item.fields.topic;
-
-      // CASE 1: topic is an array of strings
+      
+      if (!topic) return [];
       if (Array.isArray(topic)) return topic;
-
-      // CASE 2: topic is a single string
       if (typeof topic === 'string') return [topic];
-
-      // CASE 3: topic is undefined or something else
       return [];
     });
 
-    return Array.from(new Set(allTopics));
+    return Array.from(new Set(allTopics.filter(t => t && t.trim() !== '')));
   } catch (error) {
     console.error('Error fetching categories:', error);
     return [];
@@ -111,7 +108,7 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   id: item.sys.id,
   title: fields.title || 'Untitled',
   slug: fields.slug || '',
-  content: fields.content || null, // raw rich text for full rendering
+  content: fields.content || null, 
   author: fields.author || 'Anonymous',
   publishDate: fields.publishDate || null,
   featuredImage: fields.featuredImage || null,

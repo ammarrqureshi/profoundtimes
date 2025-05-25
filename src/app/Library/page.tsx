@@ -24,7 +24,7 @@ export default async function Library({ searchParams }: LibraryPageProps) {
 
   return (
     <div className="container mx-auto p-2">
-      <h1 className="text-3xl font-bold mb-4">Library</h1>
+      <h1 className="text-2xl font-bold mb-4">Library</h1>
 
       <form action="/library" method="get" className="flex mb-2">
         <Input
@@ -37,37 +37,37 @@ export default async function Library({ searchParams }: LibraryPageProps) {
         <Button type="submit">Search</Button>
       </form>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {articles.length > 0 ? (
           articles.map((article) => (
-            <Link 
-            key={article.id}
-             href={`/library/${article.slug}`}
-             className="block"
-             >
-              <Card className="border border-gray-300 rounded-lg p-4 hover:bg-gray-50 transition flex flex-row gap-3 items-start">
-                {article.featuredImage && article.featuredImage.fields?.file?.url && (
-                  <div className="w-25 h-25 flex-shrink-0">
+            <Link
+              key={article.id}
+              href={`/library/${article.slug}`}
+              className="block no-underline text-inherit"
+            >
+              <Card className="border border-gray-300 rounded-md p-3 hover:bg-gray-50 transition flex flex-row gap-3 items-start">
+                {article.featuredImage?.fields?.file?.url && (
+                  <div className="w-[80px] h-[80px] flex-shrink-0">
                     <Image
                       src={`https:${article.featuredImage.fields.file.url}`}
                       alt={article.title}
-                       width={120}
-                    height={120}
-                      className="w-full h-full object-cover rounded-md"
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover rounded"
                     />
                   </div>
                 )}
                 <div className="flex-1">
-                  <CardHeader className="p-2 pl-0">
+                  <CardHeader className="p-1 pl-0">
                     <CardContent className="p-0">
-                      <CardTitle className="text-base font-semibold">
+                      <CardTitle className="text-sm font-semibold">
                         {article.title}
                       </CardTitle>
-                      <CardDescription className="text-gray-600 text-xs">
+                      <CardDescription className="text-gray-600 text-[11px]">
                         {article.author}
                       </CardDescription>
                       {article.publishDate && (
-                        <p className="text-gray-500 text-xs">
+                        <p className="text-gray-500 text-[10px]">
                           Published on{' '}
                           {new Date(article.publishDate).toLocaleDateString('en-US', {
                             year: 'numeric',
@@ -76,10 +76,9 @@ export default async function Library({ searchParams }: LibraryPageProps) {
                           })}
                         </p>
                       )}
-                      <p className="mt-1 line-clamp-3 text-xs">{article.contentPreview}</p>
-
-
-
+                      <p className="mt-1 line-clamp-3 text-[11px] text-gray-700">
+                        {article.contentPreview}
+                      </p>
                     </CardContent>
                   </CardHeader>
                 </div>

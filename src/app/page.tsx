@@ -13,10 +13,13 @@ export default async function Home() {
   const previewArticles = articles.slice(0, 4); 
 
   return (
-    <div className="container mx-auto p-2">
+    <div className=" mx-auto p-1">
     <div className="mt-8">
-      <h1 className="text-3xl p-2 font-bold mb-4">Library</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <h1 className="text-2xl p-0 font-bold mb-2">Library</h1>
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-3">
+
+
+
         {previewArticles.length > 0 ? (
           previewArticles.map((article) => (
             <Card key={article.id} className="flex flex-row gap-3 p-4">
@@ -31,14 +34,14 @@ export default async function Home() {
                   />
                 )}
               <div className="flex-1">
-                <CardHeader className="p-2 pl-0">
+                <CardHeader className="p-1 pl-0">
                   <CardTitle className="text-xl">{article.title}</CardTitle>
                   <CardDescription>
                      {article.author || "Anonymous"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
-                 <p className="text-gray-600 text-xs line-clamp-3">{article.contentPreview}</p>
+                 <p className="text-gray-600 text-xs line-clamp-4">{article.contentPreview}</p>
 
                 </CardContent>
               </div>
