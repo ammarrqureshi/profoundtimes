@@ -1,6 +1,6 @@
-const typography = require('@tailwindcss/typography');
+import typography from '@tailwindcss/typography';
 
-module.exports = {
+export default {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
@@ -10,8 +10,7 @@ module.exports = {
             h1: { color: '#1a202c', fontWeight: '700' },
             p: { marginTop: '0', marginBottom: '1em' },
             blockquote: { borderLeftColor: '#ccc', fontStyle: 'italic' },
-            a: { textDecoration: 'none', color: '#000' }
-
+            a: { textDecoration: 'none', color: '#000' },
           },
         },
       },
