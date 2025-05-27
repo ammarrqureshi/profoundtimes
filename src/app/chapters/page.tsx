@@ -17,7 +17,6 @@ export default async function ChaptersPage({ searchParams }: PageProps) {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Chapters</h1>
 
-      {/* Category Filter */}
       <div className="mb-6">
         <h2 className="text-lg font-semibold mb-3">Categories</h2>
         {categories.length > 0 ? (
@@ -41,7 +40,6 @@ export default async function ChaptersPage({ searchParams }: PageProps) {
         )}
       </div>
 
-      {/* Articles Section - Only shown when a category is selected */}
       {selectedCategory && (
         <div>
           <h2 className="text-lg font-semibold mb-3">

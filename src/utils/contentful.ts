@@ -11,6 +11,7 @@ interface Article {
   publishDate: string | null;
   featuredImage: Asset | null;
   topic: string[]; 
+  contentPreview: string | null;
 }
 
 export const contentfulClient = createClient({
