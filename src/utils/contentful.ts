@@ -10,7 +10,7 @@ interface Article {
   author: string;
   publishDate: string | null;
   featuredImage: Asset | null;
-  topics: string[]; // Supports both topic and topics fields
+  topics: string[]; 
   contentPreview: string | null;
 }
 
@@ -31,7 +31,7 @@ export async function getArticles(topic?: string): Promise<Article[]> {
       content_type: 'article',
       ...(topic
         ? {
-            // Use OR condition for topic and topics fields
+            
             'fields.topic[in]': topic,
             'fields.topics.fields.name[in]': topic,
           }
@@ -53,7 +53,6 @@ export async function getArticles(topic?: string): Promise<Article[]> {
         topics?: Entry<any>[];
       };
 
-      // Combine topics from both fields
       const topicFromTopic = fields.topic
         ? Array.isArray(fields.topic)
           ? fields.topic.map((t) =>
