@@ -37,7 +37,7 @@ export default async function Library({ searchParams }: LibraryPageProps) {
         <Button type="submit">Search</Button>
       </form>
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-2 gap-2">
         {articles.length > 0 ? (
           articles.map((article) => (
             <Link
@@ -47,27 +47,27 @@ export default async function Library({ searchParams }: LibraryPageProps) {
             >
               <Card className="border border-gray-300 rounded-md p-3 hover:bg-gray-50 transition flex flex-row gap-3 items-start">
                 {article.featuredImage?.fields?.file?.url && (
-                  <div className="w-[80px] h-[80px] flex-shrink-0">
+                  <div className="w-[120px] h-[120px] flex-shrink-0">
                     <Image
                       src={`https:${article.featuredImage.fields.file.url}`}
                       alt={article.title}
-                      width={80}
+                      width={120}
                       height={80}
-                      className="w-full h-full object-cover rounded"
+                      className=" h-35 object-cover "
                     />
                   </div>
                 )}
                 <div className="flex-1">
                   <CardHeader className="p-1 pl-0">
                     <CardContent className="p-0">
-                      <CardTitle className="text-sm font-semibold">
+                      <CardTitle className="text-xl  mb-2">
                         {article.title}
                       </CardTitle>
-                      <CardDescription className="text-gray-600 text-[11px]">
+                      <CardDescription className="text-gray-600 text-[16px] mb-2">
                         {article.author}
                       </CardDescription>
                       {article.publishDate && (
-                        <p className="text-gray-500 text-[10px]">
+                        <p className="text-gray-500 text-[11px]">
                           Published on{' '}
                           {new Date(article.publishDate).toLocaleDateString('en-US', {
                             year: 'numeric',
@@ -76,7 +76,7 @@ export default async function Library({ searchParams }: LibraryPageProps) {
                           })}
                         </p>
                       )}
-                      <p className="mt-1 line-clamp-3 text-[11px] text-gray-700">
+                      <p className="mt-1 line-clamp-3 text-[16px] text-gray-700">
                         {article.contentPreview}
                       </p>
                     </CardContent>
