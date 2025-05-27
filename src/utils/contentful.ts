@@ -1,17 +1,23 @@
 import { createClient } from 'contentful';
-import { Asset, Entry } from 'contentful'; 
-  import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer';
+import { Asset, Entry } from 'contentful';
+import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer';
 
 interface Article {
   id: string;
   title: string;
   slug: string;
-  content: string;
+  content: string | null;
   author: string;
   publishDate: string | null;
   featuredImage: Asset | null;
-  topic: string[]; 
+  topics: string[]; // Supports both topic and topics fields
   contentPreview: string | null;
+}
+
+interface Category {
+  id: string;
+  title: string;
+  topics: string[];
 }
 
 export const contentfulClient = createClient({
@@ -23,9 +29,17 @@ export async function getArticles(topic?: string): Promise<Article[]> {
   try {
     const response = await contentfulClient.getEntries({
       content_type: 'article',
-      'fields.topic': topic || undefined, 
+      ...(topic
+        ? {
+            // Use OR condition for topic and topics fields
+            'fields.topic[in]': topic,
+            'fields.topics.fields.name[in]': topic,
+          }
+        : {}),
+      include: 3,
     });
-  
+
+    console.log('Articles response:', JSON.stringify(response.items, null, 2));
 
     return response.items.map((item: Entry<any>) => {
       const fields = item.fields as {
@@ -35,25 +49,42 @@ export async function getArticles(topic?: string): Promise<Article[]> {
         author?: string;
         publishDate?: string;
         featuredImage?: Asset;
-        topic?: string[];
+        topic?: string[] | Entry<any>[];
+        topics?: Entry<any>[];
       };
 
-    
+      // Combine topics from both fields
+      const topicFromTopic = fields.topic
+        ? Array.isArray(fields.topic)
+          ? fields.topic.map((t) =>
+              typeof t === 'string' ? t : t.fields?.name || t.fields?.title || ''
+            )
+          : typeof fields.topic === 'string'
+          ? [fields.topic]
+          : []
+        : [];
 
-return {
-  id: item.sys.id,
-  title: fields.title || 'Untitled',
-  slug: fields.slug || '',
-  contentRaw: fields.content || null, 
-  contentPreview: fields.content
-    ? documentToPlainTextString(fields.content).slice(0, 300)
-    : 'No content available',
-  author: fields.author || 'Anonymous',
-  publishDate: fields.publishDate || null,
-  featuredImage: fields.featuredImage || null,
-};
+      const topicFromTopics = fields.topics
+        ? fields.topics
+            .map((t) => t.fields?.name || '')
+            .filter((t) => t && t.trim() !== '')
+        : [];
 
+      const topics = Array.from(new Set([...topicFromTopic, ...topicFromTopics]));
 
+      return {
+        id: item.sys.id,
+        title: fields.title || 'Untitled',
+        slug: fields.slug || '',
+        content: fields.content || null,
+        contentPreview: fields.content
+          ? documentToPlainTextString(fields.content).slice(0, 300)
+          : 'No content available',
+        author: fields.author || 'Anonymous',
+        publishDate: fields.publishDate || null,
+        featuredImage: fields.featuredImage || null,
+        topics,
+      };
     });
   } catch (error) {
     console.error('Error fetching articles:', error);
@@ -61,36 +92,50 @@ return {
   }
 }
 
-export async function getCategories(): Promise<string[]> {
+export async function getCategories(): Promise<Category[]> {
   try {
     const response = await contentfulClient.getEntries({
-      content_type: 'article',
-      select: 'fields.topic',
-      limit: 1000 
+      content_type: 'category',
+      include: 2,
+      limit: 1000,
     });
 
-    const allTopics = response.items.flatMap((item: Entry<any>) => {
-      const topic = item.fields.topic;
-      
-      if (!topic) return [];
-      if (Array.isArray(topic)) return topic;
-      if (typeof topic === 'string') return [topic];
-      return [];
+    console.log('Categories response:', JSON.stringify(response.items, null, 2));
+
+    const categories = response.items.map((item: Entry<any>) => {
+      const fields = item.fields as {
+        title?: string;
+        topics?: Entry<any>[];
+      };
+
+      const topics = fields.topics
+        ? fields.topics
+            .map((t) => t.fields?.name || '')
+            .filter((t) => t && t.trim() !== '')
+        : [];
+
+      return {
+        id: item.sys.id,
+        title: fields.title || 'Untitled',
+        topics,
+      };
     });
 
-    return Array.from(new Set(allTopics.filter(t => t && t.trim() !== '')));
+    console.log('Extracted categories:', JSON.stringify(categories, null, 2));
+
+    return categories;
   } catch (error) {
     console.error('Error fetching categories:', error);
     return [];
   }
 }
 
-
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
   try {
     const response = await contentfulClient.getEntries({
       content_type: 'article',
       'fields.slug': slug,
+      include: 3,
     });
 
     const item = response.items[0] as Entry<any> | undefined;
@@ -99,24 +144,43 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     const fields = item.fields as {
       title?: string;
       slug?: string;
-      content?: any; 
+      content?: any;
       author?: string;
       publishDate?: string;
       featuredImage?: Asset;
+      topic?: string[] | Entry<any>[];
+      topics?: Entry<any>[];
     };
 
-   return {
-  id: item.sys.id,
-  title: fields.title || 'Untitled',
-  slug: fields.slug || '',
-  content: fields.content || null, 
-  author: fields.author || 'Anonymous',
-  publishDate: fields.publishDate || null,
-  featuredImage: fields.featuredImage || null,
-};
+    const topicFromTopic = fields.topic
+      ? Array.isArray(fields.topic)
+        ? fields.topic.map((t) =>
+            typeof t === 'string' ? t : t.fields?.name || t.fields?.title || ''
+          )
+        : typeof fields.topic === 'string'
+        ? [fields.topic]
+        : []
+      : [];
 
+    const topicFromTopics = fields.topics
+      ? fields.topics
+          .map((t) => t.fields?.name || '')
+          : [];
+
+    const topics = Array.from(new Set([...topicFromTopic, ...topicFromTopics]));
+
+    return {
+      id: item.sys.id,
+      title: fields.title || 'Untitled',
+      slug: fields.slug || '',
+      content: fields.content || null,
+      author: fields.author || 'Anonymous',
+      publishDate: fields.publishDate || null,
+      featuredImage: fields.featuredImage || null,
+      topics,
+    };
   } catch (error) {
     console.error('Error fetching article by slug:', error);
     return null;
   }
-} 
+}
