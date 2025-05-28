@@ -15,6 +15,7 @@ interface Article {
 }
 
 interface Category {
+  featuredImage: Asset | null;
   id: string;
   title: string;
   topics: string[];
@@ -31,7 +32,6 @@ export async function getArticles(topic?: string): Promise<Article[]> {
       content_type: 'article',
       ...(topic
         ? {
-            
             'fields.topic[in]': topic,
             'fields.topics.fields.name[in]': topic,
           }
@@ -95,7 +95,7 @@ export async function getCategories(): Promise<Category[]> {
   try {
     const response = await contentfulClient.getEntries({
       content_type: 'category',
-      include: 2,
+      include: 3, 
       limit: 1000,
     });
 
@@ -105,6 +105,7 @@ export async function getCategories(): Promise<Category[]> {
       const fields = item.fields as {
         title?: string;
         topics?: Entry<any>[];
+        featuredImage?: Asset;
       };
 
       const topics = fields.topics
@@ -117,6 +118,7 @@ export async function getCategories(): Promise<Category[]> {
         id: item.sys.id,
         title: fields.title || 'Untitled',
         topics,
+        featuredImage: fields.featuredImage || null, 
       };
     });
 
