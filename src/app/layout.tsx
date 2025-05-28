@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
 import { Input } from '../../src/components/ui/input';
@@ -32,7 +31,7 @@ export default function RootLayout({
         <Input
           type="email"
           placeholder="Enter Email"
-          className=" max-w-md  bg-white border-gray-300"
+          className=" max-w-md  bg-white "
         />
         <Button type="submit">Submit</Button>
       </div>
