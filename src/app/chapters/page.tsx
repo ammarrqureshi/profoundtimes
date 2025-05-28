@@ -14,7 +14,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
 import { ChevronDown } from 'lucide-react';
 
 interface PageProps {
@@ -27,6 +26,7 @@ export default async function ChaptersPage({ searchParams }: PageProps) {
     : searchParams.topic;
 
   const categories = await getCategories();
+  console.log('Categories data:', categories); 
   const articles = selectedTopic ? await getArticles(selectedTopic) : [];
 
   return (
@@ -35,49 +35,59 @@ export default async function ChaptersPage({ searchParams }: PageProps) {
 
       <div className="mb-6">
         {categories.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-1">
             {categories.map((category) => (
-              <Card key={category.id} className="flex flex-row gap-3 p-4">
-                <div className="flex-1">
-                  <CardHeader className="p-1 pl-0">
-                    <CardTitle className="text-[18px]">{category.title}</CardTitle>
-                    <CardDescription>Explore topics in {category.title}</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-3">
-                    {category.topics.length > 0 ? (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="mt-3 w-full justify-between bg-white text-black border-gray-300 hover:bg-gray-100 text-sm font-normal"
-                          >
-                            Select Topic
-                            <ChevronDown className="ml-2 h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-[calc(100vw-2rem)] md:w-[calc((100vw-2rem)/2-0.75rem)] bg-white !bg-opacity-100 shadow-lg rounded-md border border-gray-200 bg-[rgba(255,255,255,1)]">
-                          {category.topics.map((topic) => (
-                            <DropdownMenuItem
-                              key={topic}
-                              asChild
-                              className="px-4 py-2 text-sm  no-underline hover:underline rounded-none focus:bg-gray-100"
-                            >
-                              <Link
-                                href={`/chapters?topic=${encodeURIComponent(topic)}`}
-                                className="w-full"
-                              >
-                                {topic}
-                              </Link>
-                            </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    ) : (
-                      <p className="text-gray-500 text-xs mt-2">No topics in this category.</p>
-                    )}
-                  </CardContent>
-                </div>
-              </Card>
+              <DropdownMenu key={category.id}>
+                <DropdownMenuTrigger asChild>
+                  <Card className="flex flex-row gap-2 p-2 cursor-pointer hover:bg-gray-50 transition">
+                    <div className="flex-shrink-0">
+                      {category.featuredImage?.fields?.file?.url ? (
+                        <Image
+                          src={`https:${category.featuredImage.fields.file.url}`}
+                          alt={category.title}
+                          width={80}
+                          height={60}
+                          className="object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-[120px] h-[120px] bg-gray-200 rounded flex items-center justify-center">
+                          <span className="text-gray-500 text-sm">No Image</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <CardHeader className="p-1 pl-0">
+                        <CardTitle className="text-[18px]">{category.title}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="p-2 flex items-center justify-end">
+                        <ChevronDown className="h-3 w-2 text-gray-500" />
+                      </CardContent>
+                    </div>
+                  </Card>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[calc(100vw-2rem)] md:w-[calc((100vw-2rem)/2-0.75rem)] bg-white !bg-opacity-100 shadow-lg rounded-md border border-gray-200 bg-[rgba(255,255,255,1)]">
+                  {category.topics.length > 0 ? (
+                    category.topics.map((topic) => (
+                      <DropdownMenuItem
+                        key={topic}
+                        asChild
+                        className="px-4 py-2 text-sm no-underline hover:underline rounded-none focus:bg-gray-100"
+                      >
+                        <Link
+                          href={`/chapters?topic=${encodeURIComponent(topic)}`}
+                          className="w-full"
+                        >
+                          {topic}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <DropdownMenuItem className="px-4 py-2 text-sm text-gray-500">
+                      No topics in this category.
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             ))}
           </div>
         ) : (
