@@ -21,25 +21,38 @@ interface Category {
   topics: string[];
 }
 
+
+
 export const contentfulClient = createClient({
-  space: process.env.CONTENTFUL_SPACE_ID,
-  accessToken: process.env.CONTENTFUL_ACCESS_TOKEN,
+  space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
+  accessToken: process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN,
 });
 
-export async function getArticles(topic?: string): Promise<Article[]> {
+
+export async function getArticles(topicName?: string): Promise<Article[]> {
   try {
+    let topicId: string | undefined;
+
+    if (topicName) {
+      const topicRes = await contentfulClient.getEntries({
+        content_type: 'topic',
+        'fields.name': topicName,
+        limit: 1,
+      });
+
+      if (topicRes.items.length === 0) {
+        console.warn(`No topic found with name: ${topicName}`);
+        return [];
+      }
+
+      topicId = topicRes.items[0].sys.id;
+    }
+
     const response = await contentfulClient.getEntries({
       content_type: 'article',
-      ...(topic
-        ? {
-            'fields.topic[in]': topic,
-            'fields.topics.fields.name[in]': topic,
-          }
-        : {}),
+      ...(topicId ? { 'fields.topics.sys.id[in]': topicId } : {}),
       include: 3,
     });
-
-    console.log('Articles response:', JSON.stringify(response.items, null, 2));
 
     return response.items.map((item: Entry<any>) => {
       const fields = item.fields as {
@@ -49,27 +62,14 @@ export async function getArticles(topic?: string): Promise<Article[]> {
         author?: string;
         publishDate?: string;
         featuredImage?: Asset;
-        topic?: string[] | Entry<any>[];
         topics?: Entry<any>[];
       };
 
-      const topicFromTopic = fields.topic
-        ? Array.isArray(fields.topic)
-          ? fields.topic.map((t) =>
-              typeof t === 'string' ? t : t.fields?.name || t.fields?.title || ''
-            )
-          : typeof fields.topic === 'string'
-          ? [fields.topic]
-          : []
-        : [];
-
-      const topicFromTopics = fields.topics
+      const topics = fields.topics
         ? fields.topics
             .map((t) => t.fields?.name || '')
             .filter((t) => t && t.trim() !== '')
         : [];
-
-      const topics = Array.from(new Set([...topicFromTopic, ...topicFromTopics]));
 
       return {
         id: item.sys.id,
@@ -90,6 +90,7 @@ export async function getArticles(topic?: string): Promise<Article[]> {
     return [];
   }
 }
+
 
 export async function getCategories(): Promise<Category[]> {
   try {
