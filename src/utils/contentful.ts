@@ -29,30 +29,34 @@ export const contentfulClient = createClient({
 });
 
 
-export async function getArticles(topicName?: string): Promise<Article[]> {
+export async function getArticles(searchTerm?: string): Promise<Article[]> {
   try {
     let topicId: string | undefined;
 
-    if (topicName) {
+    if (searchTerm) {
       const topicRes = await contentfulClient.getEntries({
         content_type: 'topic',
-        'fields.name': topicName,
+        'fields.name': searchTerm,
         limit: 1,
       });
 
-      if (topicRes.items.length === 0) {
-        console.warn(`No topic found with name: ${topicName}`);
-        return [];
+      if (topicRes.items.length > 0) {
+        topicId = topicRes.items[0].sys.id;
       }
-
-      topicId = topicRes.items[0].sys.id;
     }
 
-    const response = await contentfulClient.getEntries({
+    const queryOptions: any = {
       content_type: 'article',
-      ...(topicId ? { 'fields.topics.sys.id[in]': topicId } : {}),
       include: 3,
-    });
+    };
+
+    if (topicId) {
+      queryOptions['fields.topics.sys.id[in]'] = topicId;
+    } else if (searchTerm) {
+      queryOptions.query = searchTerm;
+    }
+
+    const response = await contentfulClient.getEntries(queryOptions);
 
     return response.items.map((item: Entry<any>) => {
       const fields = item.fields as {
@@ -90,6 +94,7 @@ export async function getArticles(topicName?: string): Promise<Article[]> {
     return [];
   }
 }
+
 
 
 export async function getCategories(): Promise<Category[]> {
