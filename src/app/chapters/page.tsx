@@ -124,7 +124,6 @@ export default function ChaptersPageWrapper() {
         </div>
       )}
 
-      {/* Articles section */}
       {selectedTopic && (
         <div>
           <h2 className="text-lg font-semibold mb-3">
