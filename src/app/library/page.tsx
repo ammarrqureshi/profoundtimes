@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { getArticles } from '../../utils/contentful';
 import { Input } from '../../components/ui/input';
 import { Button } from '../../components/ui/button';
