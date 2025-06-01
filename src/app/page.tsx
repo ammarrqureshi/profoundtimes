@@ -1,4 +1,6 @@
 import Image from "next/image";
+
+import Link from "next/link";
 import { getArticles, getCategories } from "../utils/contentful"; 
 import {
   Card,
@@ -49,12 +51,12 @@ export default async function Home() {
             <p>No articles available.</p>
           )}
         </div>
-        <a
+        <Link
           href="/library"
           className="mt-4 ml-350 inline-block text-blue-500 hover:underline" 
         >
           Read more...
-        </a>
+        </Link>
       </div>
 
      <div className="mt-8">
@@ -94,12 +96,12 @@ export default async function Home() {
       <p>No categories available.</p>
     )}
   </div>
-  <a
+  <Link
     href="/chapters"
     className="mt-4 ml-350 inline-block text-blue-500 hover:underline"
   >
     Read more...
-  </a>
+  </Link>
 </div>
 </div>
   );
