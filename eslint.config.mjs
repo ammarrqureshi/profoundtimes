@@ -1,3 +1,4 @@
+
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
@@ -10,10 +11,21 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  rules: {
-  '@typescript-eslint/no-explicit-any': 'off',
-},
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+
+  {
+    files: ["**/*.ts", "**/*.tsx"],
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.json",
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off", // 👈 turn off specific rule
+      // Add more rules here if needed
+    },
+  },
 ];
 
 export default eslintConfig;
+
