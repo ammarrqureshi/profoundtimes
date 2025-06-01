@@ -13,17 +13,19 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 
-interface LibraryPageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+interface PageProps {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function Library({ searchParams }: LibraryPageProps) {
+export default async function Library(props: PageProps) {
+  const searchParams = await props.searchParams ?? {};
+
   const searchQuery = Array.isArray(searchParams.query)
     ? searchParams.query[0] || ''
     : searchParams.query || '';
-  const articles = await getArticles(searchQuery);
 
-  return (
+  const articles = await getArticles(searchQuery);  
+  return (    
     <div className="container mx-auto p-2">
       <h1 className="text-2xl font-bold mb-4">Library</h1>
 

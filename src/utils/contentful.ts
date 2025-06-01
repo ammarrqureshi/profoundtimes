@@ -1,5 +1,4 @@
-import { createClient } from 'contentful';
-import { Asset, Entry } from 'contentful';
+import { createClient, type Asset, type Entry } from 'contentful';
 import { documentToPlainTextString } from '@contentful/rich-text-plain-text-renderer';
 
 interface Article {
@@ -10,7 +9,7 @@ interface Article {
   author: string;
   publishDate: string | null;
   featuredImage: Asset | null;
-  topics: string[]; 
+  topics: string[];
   contentPreview: string | null;
 }
 
@@ -21,13 +20,14 @@ interface Category {
   topics: string[];
 }
 
-
+if (!process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID || !process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN) {
+  throw new Error('Missing Contentful environment variables: NEXT_PUBLIC_CONTENTFUL_SPACE_ID and NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN must be defined');
+}
 
 export const contentfulClient = createClient({
   space: process.env.NEXT_PUBLIC_CONTENTFUL_SPACE_ID,
   accessToken: process.env.NEXT_PUBLIC_CONTENTFUL_ACCESS_TOKEN,
 });
-
 
 export async function getArticles(searchTerm?: string): Promise<Article[]> {
   try {
@@ -66,13 +66,16 @@ export async function getArticles(searchTerm?: string): Promise<Article[]> {
         author?: string;
         publishDate?: string;
         featuredImage?: Asset;
-        topics?: Entry<any>[];
+        topics?: any[];
       };
 
-      const topics = fields.topics
+      const topics: string[] = fields.topics
         ? fields.topics
-            .map((t) => t.fields?.name || '')
-            .filter((t) => t && t.trim() !== '')
+            .map((t) => {
+              const name = t?.fields?.name;
+              return typeof name === 'string' ? name : '';
+            })
+            .filter((t) => t.trim() !== '')
         : [];
 
       return {
@@ -95,13 +98,11 @@ export async function getArticles(searchTerm?: string): Promise<Article[]> {
   }
 }
 
-
-
 export async function getCategories(): Promise<Category[]> {
   try {
     const response = await contentfulClient.getEntries({
       content_type: 'category',
-      include: 3, 
+      include: 3,
       limit: 1000,
     });
 
@@ -110,21 +111,24 @@ export async function getCategories(): Promise<Category[]> {
     const categories = response.items.map((item: Entry<any>) => {
       const fields = item.fields as {
         title?: string;
-        topics?: Entry<any>[];
+        topics?: any[];
         featuredImage?: Asset;
       };
 
-      const topics = fields.topics
+      const topics: string[] = fields.topics
         ? fields.topics
-            .map((t) => t.fields?.name || '')
-            .filter((t) => t && t.trim() !== '')
+            .map((t) => {
+              const name = t?.fields?.name;
+              return typeof name === 'string' ? name : '';
+            })
+            .filter((t) => t.trim() !== '')
         : [];
 
       return {
         id: item.sys.id,
         title: fields.title || 'Untitled',
         topics,
-        featuredImage: fields.featuredImage || null, 
+        featuredImage: fields.featuredImage || null,
       };
     });
 
@@ -155,14 +159,14 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
       author?: string;
       publishDate?: string;
       featuredImage?: Asset;
-      topic?: string[] | Entry<any>[];
-      topics?: Entry<any>[];
+      topic?: any[] | string;
+      topics?: any[];
     };
 
     const topicFromTopic = fields.topic
       ? Array.isArray(fields.topic)
         ? fields.topic.map((t) =>
-            typeof t === 'string' ? t : t.fields?.name || t.fields?.title || ''
+            typeof t === 'string' ? t : (typeof t?.fields?.name === 'string' ? t.fields.name : '')
           )
         : typeof fields.topic === 'string'
         ? [fields.topic]
@@ -171,16 +175,23 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
 
     const topicFromTopics = fields.topics
       ? fields.topics
-          .map((t) => t.fields?.name || '')
-          : [];
+          .map((t) => {
+            const name = t?.fields?.name;
+            return typeof name === 'string' ? name : '';
+          })
+          .filter((t) => t.trim() !== '')
+      : [];
 
-    const topics = Array.from(new Set([...topicFromTopic, ...topicFromTopics]));
+    const topics: string[] = Array.from(new Set([...topicFromTopic, ...topicFromTopics]));
 
     return {
       id: item.sys.id,
       title: fields.title || 'Untitled',
       slug: fields.slug || '',
       content: fields.content || null,
+      contentPreview: fields.content
+        ? documentToPlainTextString(fields.content).slice(0, 300)
+        : 'No content available',
       author: fields.author || 'Anonymous',
       publishDate: fields.publishDate || null,
       featuredImage: fields.featuredImage || null,

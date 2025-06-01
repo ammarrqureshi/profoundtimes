@@ -1,5 +1,5 @@
 'use client';
-
+import { Suspense } from 'react';
 import { getArticles, getCategories } from '@/utils/contentful';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -20,10 +20,9 @@ import { ChevronDown, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-export default function ChaptersPageWrapper() {
+function ChaptersContent() {
   const searchParams = useSearchParams();
   const selectedTopic = searchParams.get('topic');
-
   const [categories, setCategories] = useState<any[]>([]);
   const [articles, setArticles] = useState<any[]>([]);
   const router = useRouter();
@@ -95,7 +94,7 @@ export default function ChaptersPageWrapper() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-[calc(100vw-2rem)] md:w-[calc((100vw-2rem)/2-0.75rem)] bg-white !bg-opacity-100 shadow-lg rounded-md border border-gray-200 bg-[rgba(255,255,255,1)]">
                     {category.topics.length > 0 ? (
-                      category.topics.map((topic) => (
+                      category.topics.map((topic: string) => (
                         <DropdownMenuItem
                           key={topic}
                           asChild
@@ -180,5 +179,13 @@ export default function ChaptersPageWrapper() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ChaptersPageWrapper() {
+  return (
+    <Suspense fallback={<div className="container mx-auto p-2">Loading chapters...</div>}>
+      <ChaptersContent />
+    </Suspense>
   );
 }
